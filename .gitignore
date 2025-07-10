@@ -1,0 +1,7 @@
+#node modules
+node_modules/
+
+#internal docs
+API.md
+PLAN.md
+STRUCTURE.md
