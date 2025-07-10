@@ -1,7 +1,10 @@
-#node modules
+# macOS system file
+.DS_Store
+
+# Node dependencies
 node_modules/
 
-#internal docs
+# Internal planning/docs (not meant to commit)
 API.md
 PLAN.md
 STRUCTURE.md
