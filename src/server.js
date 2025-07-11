@@ -5,8 +5,9 @@ const PORT = 3000;
 
 (async () => {
     try {
-        console.log("hi");
-        await connectDB();
+        await connectDB().then(() => {
+            console.log("DB connected successfully");
+        });
 
         app.listen(PORT, () => {
             console.log(`Server is listening on port ${PORT}`);
