@@ -40,4 +40,7 @@ async function updateUserProfileById(userId, user) {
     return updatedUser;
 }
 
-module.exports = { getUserById, updateUserProfileById };
+module.exports = {
+    getUserById,
+    updateUserProfileById,
+};

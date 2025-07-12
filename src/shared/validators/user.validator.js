@@ -2,6 +2,14 @@ const validator = require("validator");
 const { ValidationError } = require("../../shared/errors");
 
 const validGenders = new Set(["male", "female", "other"]);
+const ALLOWED_UPDATE_FIELDS = new Set([
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "about",
+    "photoUrl",
+]);
 
 function validateFirstName(firstName, required = true) {
     if (
@@ -89,12 +97,30 @@ function validateGender(gender, required = true) {
     }
 }
 
+function validatePhotoURL(url, required = true) {
+    if (
+        required &&
+        (!url || typeof url !== "string" || !validator.isURL(url))
+    ) {
+        throw new ValidationError("Invalid photo url", "photoUrl");
+    }
+
+    if (
+        !required &&
+        required &&
+        (typeof url !== "string" || !validator.isURL(url))
+    ) {
+        throw new ValidationError("Invalid photo url", "photoUrl");
+    }
+}
+
 function validateRegisterUser(user) {
     if (!user || typeof user !== "object" || Array.isArray(user)) {
         throw new ValidationError("User object is required", "body");
     }
 
-    const { firstName, lastName, emailId, password, age, gender } = user;
+    const { firstName, lastName, emailId, password, age, gender, photoUrl } =
+        user;
 
     validateFirstName(firstName);
     validateLastName(lastName);
@@ -102,6 +128,7 @@ function validateRegisterUser(user) {
     validatePassword(password);
     validateAge(age);
     validateGender(gender);
+    validatePhotoURL(photoUrl, false);
 }
 
 function validateUpdateProfile(user) {
@@ -109,19 +136,11 @@ function validateUpdateProfile(user) {
         throw new ValidationError("User object is required", "body");
     }
 
-    // Allowed fields to edit
-    const allowedFields = new Set([
-        "firstName",
-        "lastName",
-        "age",
-        "gender",
-        "about",
-    ]);
     const userFields = Object.keys(user);
 
     // If any unknown field is present
     for (const field of userFields) {
-        if (!allowedFields.has(field)) {
+        if (!ALLOWED_UPDATE_FIELDS.has(field)) {
             throw new ValidationError(
                 `Field '${field}' is not allowed to update`,
                 field
@@ -129,13 +148,14 @@ function validateUpdateProfile(user) {
         }
     }
 
-    const { firstName, lastName, age, gender, about } = user;
+    const { firstName, lastName, age, gender, about, photoUrl } = user;
 
     // Validate each field (if provided)
     validateFirstName(firstName, false);
     validateLastName(lastName, false);
     validateAge(age, false);
     validateGender(gender, false);
+    validatePhotoURL(photoUrl, false);
 
     if (about && typeof about !== "string") {
         throw new ValidationError("About must be a string", "about");

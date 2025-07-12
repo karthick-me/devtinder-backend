@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
         photoUrl: {
             type: String,
             trim: true,
+            default: "https://example.com/default-photo.jpg",
         },
         about: {
             type: String,
