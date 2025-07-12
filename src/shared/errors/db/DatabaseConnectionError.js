@@ -1,4 +1,4 @@
-const AppError = require("./AppError");
+const AppError = require("../AppError");
 
 class DatabaseConnectionError extends AppError {
     constructor(message = "Database connection failed") {

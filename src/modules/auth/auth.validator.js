@@ -1,5 +1,5 @@
 const validator = require("validator");
-const ValidationError = require("../../shared/errors/ValidationError");
+const { ValidationError } = require("../../shared/errors");
 
 const validGenders = new Set(["male", "female", "other"]);
 

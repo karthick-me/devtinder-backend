@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../modules/user/user.model");
-const UserNotFoundError = require("../shared/errors/UserNotFoundError");
+const User = require("../shared/models/user.model");
+const { UserNotFoundError } = require("../shared/errors");
 
 const authenticateUser = async function (request, response, next) {
     const { token } = request.cookies;
@@ -17,12 +17,12 @@ const authenticateUser = async function (request, response, next) {
     try {
         const decoded = jwt.verify(token, "KARTHICK");
         const { sub: userId } = decoded;
-        const user = await User.findById(userId);
-        if (!user) {
+        const userExists = await User.exists({ _id: userId });
+        if (!userExists) {
             throw new UserNotFoundError("User not found");
         }
 
-        request.user = user;
+        request.userId = userId;
         next();
     } catch (error) {
         const statusCode = error.statusCode || 500;

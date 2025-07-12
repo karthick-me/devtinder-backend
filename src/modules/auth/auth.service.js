@@ -1,10 +1,7 @@
-const bcrypt = require("bcrypt");
+const User = require("../../shared/models/user.model");
+const { validateRegisterUser } = require("./auth.validator");
 
-const User = require("../user/user.model");
-const validateRegisterUser = require("./auth.validator");
-
-const DuplicationFieldError = require("../../shared/errors/DuplicationFieldError");
-const UserNotFoundError = require("../../shared/errors/UserNotFoundError");
+const { DuplicationFieldError } = require("../../shared/errors");
 
 const SALT = 10;
 

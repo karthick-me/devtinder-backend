@@ -1,4 +1,4 @@
-const AppError = require("./AppError");
+const AppError = require("../AppError");
 
 class DuplicationFieldError extends AppError {
     constructor(message = "Duplicate field value", field = null) {

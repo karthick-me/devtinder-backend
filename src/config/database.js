@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
-const {
-    DatabaseConnectionError,
-} = require("../shared/errors/DatabaseConnectionError");
+const { DatabaseConnectionError } = require("../shared/errors");
 
 const connectDB = async function () {
     try {

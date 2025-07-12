@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const UserNotFoundError = require("../../shared/errors/UserNotFoundError");
-const InvalidPasswordError = require("../../shared/errors/InvalidPasswordError");
+const { UserNotFoundError, InvalidPasswordError } = require("../errors/index");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 

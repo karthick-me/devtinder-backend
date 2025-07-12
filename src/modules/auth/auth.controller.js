@@ -3,8 +3,8 @@ const { registerUser, loginUser } = require("./auth.service");
 const signupController = async function (request, response) {
     try {
         const savedUser = await registerUser(request.body);
-        const userId = savedUser._id.toString();
-        response.status(201).json({
+        const userId = savedUser._id;
+        return response.status(201).json({
             success: true,
             message: "User registered successfully",
             data: { userId },
@@ -16,7 +16,7 @@ const signupController = async function (request, response) {
         const errorType = error.type || "InternalServerError";
         const details = error.details || null;
         const message = error.message || "Something went wrong";
-        response.status(statusCode).json({
+        return response.status(statusCode).json({
             success: false,
             message,
             error: {
@@ -35,7 +35,7 @@ const loginController = async function (request, response) {
         const password = request.body.password;
 
         const { user, token } = await loginUser(emailId, password);
-        response
+        return response
             .cookie("token", token, {
                 httpOnly: true,
                 sameSite: "strict",
@@ -55,7 +55,7 @@ const loginController = async function (request, response) {
         const errorType = error.type || "InternalServerError";
         const details = error.details || null;
         const message = error.message || "Something went wrong";
-        response.status(statusCode).json({
+        return response.status(statusCode).json({
             success: false,
             message,
             error: {
@@ -69,7 +69,7 @@ const loginController = async function (request, response) {
 };
 
 const logoutController = function (request, response) {
-    response
+    return response
         .clearCookie("token", {
             httpOnly: true,
             sameSite: "strict",
