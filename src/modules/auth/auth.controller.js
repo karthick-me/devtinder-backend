@@ -1,4 +1,4 @@
-const { registerUser } = require("./auth.service");
+const { registerUser, loginUser } = require("./auth.service");
 
 const signupController = async function (request, response) {
     try {
@@ -29,4 +29,42 @@ const signupController = async function (request, response) {
     }
 };
 
-module.exports = { signupController };
+const loginController = async function (request, response) {
+    try {
+        const emailId = request.body.emailId;
+        const password = request.body.password;
+
+        const { user, token } = await loginUser(emailId, password);
+        response
+            .cookie("token", token, {
+                httpOnly: true,
+            })
+            .status(200)
+            .json({
+                success: true,
+                message: "Login successfully",
+                data: {
+                    user,
+                },
+                statusCode: 200,
+                timestamp: new Date().toISOString(),
+            });
+    } catch (error) {
+        const statusCode = error.statusCode || 500;
+        const errorType = error.type || "InternalServerError";
+        const details = error.details || null;
+        const message = error.message || "Something went wrong";
+        response.status(statusCode).json({
+            success: false,
+            message,
+            error: {
+                type: errorType,
+                details,
+            },
+            statusCode,
+            timestamp: new Date().toISOString(),
+        });
+    }
+};
+
+module.exports = { signupController, loginController };

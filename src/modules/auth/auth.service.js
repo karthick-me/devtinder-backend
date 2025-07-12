@@ -1,17 +1,16 @@
 const bcrypt = require("bcrypt");
 
 const User = require("../user/user.model");
-const { validateRegisterUser } = require("./auth.validator");
+const validateRegisterUser = require("./auth.validator");
+
 const DuplicationFieldError = require("../../shared/errors/DuplicationFieldError");
+const UserNotFoundError = require("../../shared/errors/UserNotFoundError");
 
 const SALT = 10;
 
 async function registerUser(user) {
     //validating the user
     validateRegisterUser(user);
-
-    //encrypting the password
-    user.password = await bcrypt.hash(user.password, SALT);
 
     //creating new user
     const newUser = new User(user);
@@ -28,4 +27,13 @@ async function registerUser(user) {
     }
 }
 
-module.exports = { registerUser };
+async function loginUser(emailId, password) {
+    //getting the user details
+    const user = await User.findByCredentials(emailId, password);
+
+    //getting the JWT token
+    const token = await user.getJWT();
+    return { user, token };
+}
+
+module.exports = { registerUser, loginUser };
