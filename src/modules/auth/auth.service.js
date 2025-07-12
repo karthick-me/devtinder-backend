@@ -1,5 +1,5 @@
 const User = require("../../shared/models/user.model");
-const { validateRegisterUser } = require("./auth.validator");
+const { validateRegisterUser } = require("../../shared/validators");
 
 const { DuplicationFieldError } = require("../../shared/errors");
 
