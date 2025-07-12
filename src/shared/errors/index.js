@@ -5,6 +5,9 @@ const ValidationError = require("./auth/ValidationError");
 const DatabaseConnectionError = require("./db/DatabaseConnectionError");
 const DuplicationFieldError = require("./auth/DuplicationFieldError");
 const ConnectionAlreadyExistsError = require("./connections/ConnectionAlreadyExistsError");
+const ConnectionNotExistsError = require("./connections/ConnectionNotExistsError");
+const InvalidConnectionStatusError = require("./connections/InvalidConnectionStatusError");
+const ConnectionAlreadyMatchedError = require("./connections/ConnectionAlreadyMatchedError");
 
 module.exports = {
     AppError,
@@ -14,4 +17,7 @@ module.exports = {
     DatabaseConnectionError,
     DuplicationFieldError,
     ConnectionAlreadyExistsError,
+    ConnectionNotExistsError,
+    InvalidConnectionStatusError,
+    ConnectionAlreadyMatchedError,
 };
