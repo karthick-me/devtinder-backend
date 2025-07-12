@@ -1,31 +1,23 @@
 const { registerUser, loginUser } = require("./auth.service");
+const {
+    formatSuccessResponse,
+    formatErrorResponse,
+} = require("../../shared/utils");
 
 const signupController = async function (request, response) {
     try {
         const savedUser = await registerUser(request.body);
         const userId = savedUser._id;
-        return response.status(201).json({
-            success: true,
+
+        const successResponse = formatSuccessResponse({
             message: "User registered successfully",
             data: { userId },
             statusCode: 201,
-            timestamp: new Date().toISOString(),
         });
+        return response.status(201).json(successResponse);
     } catch (error) {
-        const statusCode = error.statusCode || 500;
-        const errorType = error.type || "InternalServerError";
-        const details = error.details || null;
-        const message = error.message || "Something went wrong";
-        return response.status(statusCode).json({
-            success: false,
-            message,
-            error: {
-                type: errorType,
-                details,
-            },
-            statusCode,
-            timestamp: new Date().toISOString(),
-        });
+        const errorResponse = formatErrorResponse(error);
+        return response.status(error.statusCode || 500).json(errorResponse);
     }
 };
 
@@ -35,40 +27,29 @@ const loginController = async function (request, response) {
         const password = request.body.password;
 
         const { user, token } = await loginUser(emailId, password);
-        return response
-            .cookie("token", token, {
-                httpOnly: true,
-                sameSite: "strict",
-            })
-            .status(200)
-            .json({
-                success: true,
-                message: "Login successfully",
-                data: {
-                    user,
-                },
-                statusCode: 200,
-                timestamp: new Date().toISOString(),
-            });
-    } catch (error) {
-        const statusCode = error.statusCode || 500;
-        const errorType = error.type || "InternalServerError";
-        const details = error.details || null;
-        const message = error.message || "Something went wrong";
-        return response.status(statusCode).json({
-            success: false,
-            message,
-            error: {
-                type: errorType,
-                details,
+        const successResponse = formatSuccessResponse({
+            message: "Login successfully",
+            data: {
+                user,
             },
-            statusCode,
-            timestamp: new Date().toISOString(),
+            statusCode: 200,
         });
+        response.cookie("token", token, {
+            httpOnly: true,
+            sameSite: "strict",
+        });
+        return response.status(200).json(successResponse);
+    } catch (error) {
+        const errorResponse = formatErrorResponse(error);
+        return response.status(error.statusCode || 500).json(errorResponse);
     }
 };
 
 const logoutController = function (request, response) {
+    const successResponse = formatSuccessResponse({
+        message: "Logout successfully",
+        statusCode: 200,
+    });
     return response
         .clearCookie("token", {
             httpOnly: true,
@@ -76,12 +57,7 @@ const logoutController = function (request, response) {
             path: "/",
         })
         .status(200)
-        .json({
-            success: true,
-            message: "Logout successfully",
-            statusCode: 200,
-            timestamp: new Date().toISOString(),
-        });
+        .json(successResponse);
 };
 
 module.exports = { signupController, loginController, logoutController };
