@@ -32,7 +32,7 @@ async function loginUser(emailId, password) {
     const user = await User.findByCredentials(emailId, password);
 
     //getting the JWT token
-    const token = await user.getJWT();
+    const token = await user.generateJWT();
     return { user, token };
 }
 

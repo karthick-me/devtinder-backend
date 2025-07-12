@@ -38,6 +38,7 @@ const loginController = async function (request, response) {
         response
             .cookie("token", token, {
                 httpOnly: true,
+                sameSite: "strict",
             })
             .status(200)
             .json({
@@ -67,4 +68,20 @@ const loginController = async function (request, response) {
     }
 };
 
-module.exports = { signupController, loginController };
+const logoutController = function (request, response) {
+    response
+        .clearCookie("token", {
+            httpOnly: true,
+            sameSite: "strict",
+            path: "/",
+        })
+        .status(200)
+        .json({
+            success: true,
+            message: "Logout successfully",
+            statusCode: 200,
+            timestamp: new Date().toISOString(),
+        });
+};
+
+module.exports = { signupController, loginController, logoutController };

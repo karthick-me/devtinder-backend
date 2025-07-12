@@ -55,8 +55,11 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-userSchema.methods.getJWT = function () {
-    const token = jwt.sign({ _id: this.id }, "KARTHICK", { expiresIn: "30d" });
+userSchema.methods.generateJWT = function () {
+    const payload = {
+        sub: this._id,
+    };
+    const token = jwt.sign(payload, "KARTHICK", { expiresIn: "30d" });
     return token;
 };
 
