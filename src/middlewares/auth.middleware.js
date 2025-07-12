@@ -17,8 +17,8 @@ const authenticateUser = async function (request, response, next) {
     try {
         const decoded = jwt.verify(token, "KARTHICK");
         const { sub: userId } = decoded;
-        const userExists = await User.exists({ _id: userId });
-        if (!userExists) {
+        const user = await User.findById({ _id: userId });
+        if (!user) {
             throw new UserNotFoundError("User not found");
         }
 
