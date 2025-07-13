@@ -12,6 +12,7 @@ const findConnectionBetweenUsers = async function (initiatorId, receiverId) {
 const findUserConnections = async function (
     userId,
     status = "matched",
+    direction = "both",
     {
         page = 1,
         limit = 10,
@@ -20,10 +21,17 @@ const findUserConnections = async function (
     } = {}
 ) {
     const skip = (page - 1) * limit;
-    return await Connection.find({
-        $or: [{ initiator: userId }, { receiver: userId }],
-        status,
-    })
+
+    let query = { status };
+
+    if (direction === "incoming") {
+        query.receiver = userId;
+    } else if (direction === "outgoing") {
+        query.initiator = userId;
+    } else {
+        query.$or = [{ initiator: userId }, { receiver: userId }];
+    }
+    return await Connection.find(query)
         .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
         .skip(skip)
         .limit(limit)
