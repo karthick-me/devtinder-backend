@@ -29,13 +29,11 @@ const connectionSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
-connectionSchema.methods.toJSON = function () {
-    const connection = this.toObject();
 
-    delete connection._id;
-    delete connection.createdAt;
-    delete connection.updatedAt;
-    delete connection.__v;
+connectionSchema.index({ initiator: 1, receiver: 1 }, { unique: true });
+
+connectionSchema.methods.toJSON = function () {
+    const { _id, __v, createdAt, updatedAt, ...connection } = this.toObject();
     return connection;
 };
 const Connection = new mongoose.model("Connection", connectionSchema);

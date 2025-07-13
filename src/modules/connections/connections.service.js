@@ -1,11 +1,17 @@
-const Connection = require("./connections.model");
 const { validateConnectionRequest } = require("./connections.validator");
 const {
     ConnectionAlreadyExistsError,
     ConnectionNotExistsError,
     InvalidConnectionStatusError,
     ConnectionAlreadyMatchedError,
+    ConnectionAlreadyRejectedError,
 } = require("../../shared/errors");
+
+const {
+    findConnectionBetweenUsers,
+    saveNewConnection,
+    updateConnectionStatus,
+} = require("./connections.repository");
 
 const ConnectionStatus = {
     LIKED: "liked",
@@ -17,12 +23,10 @@ const ConnectionStatus = {
 async function sendConnectionRequest(initiatorId, receiverId) {
     await validateConnectionRequest(initiatorId, receiverId);
 
-    const existingConnection = await Connection.findOne({
-        $or: [
-            { initiator: initiatorId, receiver: receiverId },
-            { initiator: receiverId, receiver: initiatorId },
-        ],
-    });
+    const existingConnection = await findConnectionBetweenUsers(
+        initiatorId,
+        receiverId
+    );
 
     if (existingConnection) {
         throw new ConnectionAlreadyExistsError(
@@ -30,13 +34,7 @@ async function sendConnectionRequest(initiatorId, receiverId) {
         );
     }
 
-    const newConnection = new Connection({
-        initiator: initiatorId,
-        receiver: receiverId,
-        status: ConnectionStatus.LIKED,
-    });
-
-    const savedConnection = await newConnection.save();
+    const savedConnection = await saveNewConnection(initiatorId, receiverId);
 
     return savedConnection;
 }
@@ -44,12 +42,10 @@ async function sendConnectionRequest(initiatorId, receiverId) {
 async function acceptConnectionRequest(receiverId, initiatorId) {
     await validateConnectionRequest(receiverId, initiatorId);
 
-    const existingConnection = await Connection.findOne({
-        $or: [
-            { initiator: initiatorId, receiver: receiverId },
-            { initiator: receiverId, receiver: initiatorId },
-        ],
-    });
+    const existingConnection = await findConnectionBetweenUsers(
+        initiatorId,
+        receiverId
+    );
 
     if (!existingConnection) {
         throw new ConnectionNotExistsError(
@@ -65,14 +61,54 @@ async function acceptConnectionRequest(receiverId, initiatorId) {
         throw new InvalidConnectionStatusError("Connection cannot be accepted");
     }
 
-    existingConnection.status = ConnectionStatus.MATCHED;
-
-    existingConnection.lastInteractionAt = new Date();
-    existingConnection.matchedAt = new Date();
-
-    const updatedConnection = await existingConnection.save();
+    const updatedConnection = await updateConnectionStatus(
+        existingConnection,
+        ConnectionStatus.MATCHED
+    );
 
     return updatedConnection;
 }
 
-module.exports = { sendConnectionRequest, acceptConnectionRequest };
+async function rejectConnectionRequest(receiverId, initiatorId) {
+    await validateConnectionRequest(receiverId, initiatorId);
+
+    const existingConnection = await findConnectionBetweenUsers(
+        initiatorId,
+        receiverId
+    );
+
+    if (!existingConnection) {
+        throw new ConnectionNotExistsError(
+            "Connection does not exist to reject"
+        );
+    }
+
+    if (existingConnection.status === ConnectionStatus.REJECTED) {
+        throw new ConnectionAlreadyRejectedError("Connection already rejected");
+    }
+
+    if (existingConnection.status === ConnectionStatus.MATCHED) {
+        throw new ConnectionAlreadyMatchedError(
+            "Can't reject matched connection"
+        );
+    }
+
+    if (existingConnection.status !== ConnectionStatus.LIKED) {
+        throw new InvalidConnectionStatusError(
+            `Connection in '${existingConnection.status}' state cannot be rejected`
+        );
+    }
+
+    const updatedConnection = await updateConnectionStatus(
+        existingConnection,
+        ConnectionStatus.REJECTED
+    );
+
+    return updatedConnection;
+}
+
+module.exports = {
+    sendConnectionRequest,
+    acceptConnectionRequest,
+    rejectConnectionRequest,
+};

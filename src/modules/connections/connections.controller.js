@@ -1,6 +1,7 @@
 const {
     sendConnectionRequest,
     acceptConnectionRequest,
+    rejectConnectionRequest,
 } = require("./connections.service");
 const {
     formatSuccessResponse,
@@ -49,7 +50,30 @@ const acceptConnectionRequestController = async function (request, response) {
     }
 };
 
+const rejectConnectionRequestController = async function (request, response) {
+    try {
+        const receiverId = request.userId;
+        const initiatorId = request.params.initiatorId;
+
+        const updatedConnection = await rejectConnectionRequest(
+            receiverId,
+            initiatorId
+        );
+        const successResponse = formatSuccessResponse({
+            message: "Connection request rejected",
+            data: { updatedConnection },
+            statusCode: 200,
+        });
+
+        return response.status(200).json(successResponse);
+    } catch (error) {
+        const errorResponse = formatErrorResponse(error);
+        return response.status(error.statusCode || 500).json(errorResponse);
+    }
+};
+
 module.exports = {
     sendConnectionRequestController,
     acceptConnectionRequestController,
+    rejectConnectionRequestController,
 };
