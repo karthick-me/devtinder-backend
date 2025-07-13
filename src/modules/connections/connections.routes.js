@@ -6,6 +6,7 @@ const {
     sendConnectionRequestController,
     acceptConnectionRequestController,
     rejectConnectionRequestController,
+    removeConnecionController,
 } = require("./connections.controller");
 
 const router = express.Router();
@@ -27,5 +28,7 @@ router.post(
     authenticateUser,
     rejectConnectionRequestController
 );
+
+router.delete("/:targetUserId", authenticateUser, removeConnecionController);
 
 module.exports = router;

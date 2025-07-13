@@ -2,6 +2,7 @@ const {
     sendConnectionRequest,
     acceptConnectionRequest,
     rejectConnectionRequest,
+    removeConnection,
 } = require("./connections.service");
 const {
     formatSuccessResponse,
@@ -72,8 +73,28 @@ const rejectConnectionRequestController = async function (request, response) {
     }
 };
 
+const removeConnecionController = async function (request, response) {
+    try {
+        const userId = request.userId;
+        const targetUserId = request.params.targetUserId;
+
+        const removedConnection = await removeConnection(userId, targetUserId);
+
+        const successResponse = formatSuccessResponse({
+            message: "Connection removed",
+            data: { removedConnection },
+            statusCode: 200,
+        });
+        return response.status(200).json(successResponse);
+    } catch (error) {
+        const errorResponse = formatErrorResponse(error);
+        return response.status(error.statusCode || 500).json(errorResponse);
+    }
+};
+
 module.exports = {
     sendConnectionRequestController,
     acceptConnectionRequestController,
     rejectConnectionRequestController,
+    removeConnecionController,
 };

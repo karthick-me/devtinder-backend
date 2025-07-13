@@ -9,6 +9,7 @@ const ConnectionNotExistsError = require("./connections/ConnectionNotExistsError
 const InvalidConnectionStatusError = require("./connections/InvalidConnectionStatusError");
 const ConnectionAlreadyMatchedError = require("./connections/ConnectionAlreadyMatchedError");
 const ConnectionAlreadyRejectedError = require("./connections/ConnectionAlreadyRejectedError");
+const ConnectionRemovalNotAllowedError = require("./connections/ConnectionRemovalNotAllowedError");
 
 module.exports = {
     AppError,
@@ -22,4 +23,5 @@ module.exports = {
     InvalidConnectionStatusError,
     ConnectionAlreadyMatchedError,
     ConnectionAlreadyRejectedError,
+    ConnectionRemovalNotAllowedError,
 };

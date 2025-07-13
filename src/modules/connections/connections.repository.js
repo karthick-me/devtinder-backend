@@ -33,8 +33,14 @@ const updateConnectionStatus = async function (connection, newStatus) {
     return await connection.save();
 };
 
+const deleteConnection = async function (connection) {
+    await connection.deleteOne();
+    return connection;
+};
+
 module.exports = {
     findConnectionBetweenUsers,
     saveNewConnection,
     updateConnectionStatus,
+    deleteConnection,
 };

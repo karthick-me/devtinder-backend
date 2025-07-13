@@ -5,12 +5,14 @@ const {
     InvalidConnectionStatusError,
     ConnectionAlreadyMatchedError,
     ConnectionAlreadyRejectedError,
+    ConnectionRemovalNotAllowedError,
 } = require("../../shared/errors");
 
 const {
     findConnectionBetweenUsers,
     saveNewConnection,
     updateConnectionStatus,
+    deleteConnection,
 } = require("./connections.repository");
 
 const ConnectionStatus = {
@@ -107,8 +109,32 @@ async function rejectConnectionRequest(receiverId, initiatorId) {
     return updatedConnection;
 }
 
+async function removeConnection(userId, targetUserId) {
+    await validateConnectionRequest(userId, targetUserId);
+
+    const existingConnection = await findConnectionBetweenUsers(
+        userId,
+        targetUserId
+    );
+
+    if (!existingConnection) {
+        throw new ConnectionNotExistsError(
+            "Connection does not exist to remove"
+        );
+    }
+
+    if (existingConnection.status !== ConnectionStatus.MATCHED) {
+        throw new ConnectionRemovalNotAllowedError(
+            "Only matched connections can be removed"
+        );
+    }
+
+    return await deleteConnection(existingConnection);
+}
+
 module.exports = {
     sendConnectionRequest,
     acceptConnectionRequest,
     rejectConnectionRequest,
+    removeConnection,
 };
