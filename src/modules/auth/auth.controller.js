@@ -1,49 +1,36 @@
 const { registerUser, loginUser } = require("./auth.service");
-const {
-    formatSuccessResponse,
-    formatErrorResponse,
-} = require("../../shared/utils");
+const { formatSuccessResponse } = require("../../shared/utils");
+const asyncHandler = require("../../shared/utils/asyncHandler");
 
-const signupController = async function (request, response) {
-    try {
-        const savedUser = await registerUser(request.body);
-        const userId = savedUser._id;
+const signupController = asyncHandler(async function (request, response) {
+    const savedUser = await registerUser(request.body);
+    const userId = savedUser._id;
+    const successResponse = formatSuccessResponse({
+        message: "User registered successfully",
+        data: { userId },
+        statusCode: 201,
+    });
+    return response.status(201).json(successResponse);
+});
 
-        const successResponse = formatSuccessResponse({
-            message: "User registered successfully",
-            data: { userId },
-            statusCode: 201,
-        });
-        return response.status(201).json(successResponse);
-    } catch (error) {
-        const errorResponse = formatErrorResponse(error);
-        return response.status(error.statusCode || 500).json(errorResponse);
-    }
-};
+const loginController = asyncHandler(async function (request, response) {
+    const emailId = request.body.emailId;
+    const password = request.body.password;
 
-const loginController = async function (request, response) {
-    try {
-        const emailId = request.body.emailId;
-        const password = request.body.password;
-
-        const { user, token } = await loginUser(emailId, password);
-        const successResponse = formatSuccessResponse({
-            message: "Login successfully",
-            data: {
-                user,
-            },
-            statusCode: 200,
-        });
-        response.cookie("token", token, {
-            httpOnly: true,
-            sameSite: "strict",
-        });
-        return response.status(200).json(successResponse);
-    } catch (error) {
-        const errorResponse = formatErrorResponse(error);
-        return response.status(error.statusCode || 500).json(errorResponse);
-    }
-};
+    const { user, token } = await loginUser(emailId, password);
+    const successResponse = formatSuccessResponse({
+        message: "Login successfully",
+        data: {
+            user,
+        },
+        statusCode: 200,
+    });
+    response.cookie("token", token, {
+        httpOnly: true,
+        sameSite: "strict",
+    });
+    return response.status(200).json(successResponse);
+});
 
 const logoutController = function (request, response) {
     const successResponse = formatSuccessResponse({

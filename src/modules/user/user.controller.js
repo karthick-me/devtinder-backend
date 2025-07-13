@@ -6,7 +6,7 @@ const { getUserById, updateUserProfileById } = require("./user.service");
 
 const getLoggedInUserController = async function (request, response) {
     try {
-        const { _id: userId } = request.user;
+        const userId = request.userId;
         const user = await getUserById(userId);
 
         const successResponse = formatSuccessResponse({
@@ -25,7 +25,7 @@ const getLoggedInUserController = async function (request, response) {
 
 const updateUserProfileController = async function (request, response) {
     try {
-        const { _id: userId } = request.user;
+        const userId = request.userId;
         const user = await updateUserProfileById(userId, request.body);
 
         const successResponse = formatSuccessResponse({
