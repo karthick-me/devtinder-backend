@@ -3,6 +3,7 @@ const {
     acceptConnectionRequest,
     rejectConnectionRequest,
     removeConnection,
+    getAllMatchedConnections,
 } = require("./connections.service");
 const {
     formatSuccessResponse,
@@ -92,9 +93,45 @@ const removeConnecionController = async function (request, response) {
     }
 };
 
+const getAllMatchedConnectionsController = async function (request, response) {
+    try {
+        const userId = request.userId;
+
+        const {
+            page = 1,
+            limit = 10,
+            sortBy = "lastInteractionAt",
+            sortOrder = "desc",
+        } = request.query;
+
+        const paginationOptions = {
+            page: Math.max(1, Number(page)),
+            limit: Math.min(100, Number(limit)),
+            sortBy,
+            sortOrder,
+        };
+
+        const connections = await getAllMatchedConnections(
+            userId,
+            paginationOptions
+        );
+
+        const successResponse = formatSuccessResponse({
+            message: "All matched users fetched successfully",
+            data: { connections },
+            statusCode: 200,
+        });
+        return response.status(200).json(successResponse);
+    } catch (error) {
+        const errorResponse = formatErrorResponse(error);
+        return response.status(error.statusCode || 500).json(errorResponse);
+    }
+};
+
 module.exports = {
     sendConnectionRequestController,
     acceptConnectionRequestController,
     rejectConnectionRequestController,
     removeConnecionController,
+    getAllMatchedConnectionsController,
 };

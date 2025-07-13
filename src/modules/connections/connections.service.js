@@ -13,6 +13,7 @@ const {
     saveNewConnection,
     updateConnectionStatus,
     deleteConnection,
+    findUserConnections,
 } = require("./connections.repository");
 
 const ConnectionStatus = {
@@ -132,9 +133,18 @@ async function removeConnection(userId, targetUserId) {
     return await deleteConnection(existingConnection);
 }
 
+async function getAllMatchedConnections(userId, paginationOptions) {
+    return await findUserConnections(
+        userId,
+        ConnectionStatus.MATCHED,
+        paginationOptions
+    );
+}
+
 module.exports = {
     sendConnectionRequest,
     acceptConnectionRequest,
     rejectConnectionRequest,
     removeConnection,
+    getAllMatchedConnections,
 };

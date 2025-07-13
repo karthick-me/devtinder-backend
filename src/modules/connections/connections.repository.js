@@ -9,6 +9,27 @@ const findConnectionBetweenUsers = async function (initiatorId, receiverId) {
     });
 };
 
+const findUserConnections = async function (
+    userId,
+    status = "matched",
+    {
+        page = 1,
+        limit = 10,
+        sortBy = "lastInteractionAt",
+        sortOrder = "desc",
+    } = {}
+) {
+    const skip = (page - 1) * limit;
+    return await Connection.find({
+        $or: [{ initiator: userId }, { receiver: userId }],
+        status,
+    })
+        .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("initiator receiver", "name photoUrl");
+};
+
 const saveNewConnection = async function (
     initiatorId,
     receiverId,
@@ -43,4 +64,5 @@ module.exports = {
     saveNewConnection,
     updateConnectionStatus,
     deleteConnection,
+    findUserConnections,
 };
