@@ -12,8 +12,8 @@ const findConnectionBetweenUsers = async function (initiatorId, receiverId) {
 const findUserConnections = async function (
     userId,
     status = "matched",
-    direction = "both",
     {
+        direction = "both",
         page = 1,
         limit = 10,
         sortBy = "lastInteractionAt",

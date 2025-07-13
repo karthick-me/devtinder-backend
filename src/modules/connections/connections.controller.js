@@ -4,6 +4,7 @@ const {
     rejectConnectionRequest,
     removeConnection,
     getAllMatchedConnections,
+    getAllConnectionsRequest,
 } = require("./connections.service");
 const {
     formatSuccessResponse,
@@ -102,22 +103,61 @@ const getAllMatchedConnectionsController = async function (request, response) {
             limit = 10,
             sortBy = "lastInteractionAt",
             sortOrder = "desc",
+            direction = "both",
         } = request.query;
 
-        const paginationOptions = {
+        const queryOptions = {
+            page: Math.max(1, Number(page)),
+            limit: Math.min(100, Number(limit)),
+            sortBy,
+            sortOrder,
+            direction,
+        };
+
+        const connections = await getAllMatchedConnections(
+            userId,
+            queryOptions
+        );
+
+        const successResponse = formatSuccessResponse({
+            message: "All matched users fetched successfully",
+            data: { connections },
+            statusCode: 200,
+        });
+        return response.status(200).json(successResponse);
+    } catch (error) {
+        const errorResponse = formatErrorResponse(error);
+        return response.status(error.statusCode || 500).json(errorResponse);
+    }
+};
+
+const getAllConnectionsRequestController = async function (request, response) {
+    try {
+        const userId = request.userId;
+
+        const {
+            page = 1,
+            limit = 10,
+            sortBy = "lastInteractionAt",
+            sortOrder = "desc",
+            direction = "both",
+        } = request.query;
+
+        const queryOptions = {
+            direction,
             page: Math.max(1, Number(page)),
             limit: Math.min(100, Number(limit)),
             sortBy,
             sortOrder,
         };
 
-        const connections = await getAllMatchedConnections(
+        const connections = await getAllConnectionsRequest(
             userId,
-            paginationOptions
+            queryOptions
         );
 
         const successResponse = formatSuccessResponse({
-            message: "All matched users fetched successfully",
+            message: "All connection request fetched successfully",
             data: { connections },
             statusCode: 200,
         });
@@ -134,4 +174,5 @@ module.exports = {
     rejectConnectionRequestController,
     removeConnecionController,
     getAllMatchedConnectionsController,
+    getAllConnectionsRequestController,
 };

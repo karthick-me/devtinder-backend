@@ -141,10 +141,19 @@ async function getAllMatchedConnections(userId, paginationOptions) {
     );
 }
 
+async function getAllConnectionsRequest(userId, paginationOptions) {
+    return await findUserConnections(
+        userId,
+        ConnectionStatus.LIKED,
+        paginationOptions
+    );
+}
+
 module.exports = {
     sendConnectionRequest,
     acceptConnectionRequest,
     rejectConnectionRequest,
     removeConnection,
     getAllMatchedConnections,
+    getAllConnectionsRequest,
 };
