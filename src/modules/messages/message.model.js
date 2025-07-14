@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { trim } = require("validator");
 
 const messageSchema = new mongoose.Schema(
     {
@@ -45,6 +44,6 @@ const messageSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const Message = new mongoose.model("Message", messageSchema);
+const Message = mongoose.model("Message", messageSchema);
 
 module.exports = Message;

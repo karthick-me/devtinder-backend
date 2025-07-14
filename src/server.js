@@ -8,6 +8,9 @@ const PORT = 3000;
     try {
         await connectDB().then(() => {
             console.log("DB connected successfully");
+            const mongoose = require("mongoose");
+
+            console.log(mongoose.models); // should include "Message"
         });
 
         const server = http.createServer(app);
