@@ -1,7 +1,7 @@
 const http = require("http");
-const { connectDB } = require("./config/database");
 const app = require("./app");
-
+const { connectDB } = require("./config/database");
+const { setupSocket } = require("./sockets");
 const PORT = 3000;
 
 (async () => {
@@ -11,6 +11,7 @@ const PORT = 3000;
         });
 
         const server = http.createServer(app);
+        setupSocket(server);
 
         server.listen(PORT, () => {
             console.log(`Server is listening on port ${PORT}`);
