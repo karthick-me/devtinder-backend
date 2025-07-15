@@ -1,7 +1,8 @@
 const Chat = require("./chat.model");
+const Message = require("../messages/message.model");
 
 //TODO : later if we any chatname for user use that but now use firstname
-const findChatsByUserId = async function (userId) {
+const findAllChatsByUserId = async function (userId) {
     const allChats = await Chat.find({
         participants: userId,
         archivedBy: { $ne: userId },
@@ -15,4 +16,21 @@ const findChatsByUserId = async function (userId) {
     return allChats;
 };
 
-module.exports = { findChatsByUserId };
+const findChatByUserId = async function (
+    chatId,
+    userId,
+    { page = 1, limit = 10, sortBy = "createdAt", sortOrder = "asc" } = {}
+) {
+    const skip = (page - 1) * limit;
+    const messages = await Message.find({
+        $or: [{ sender: userId }, { receiver: userId }],
+        chatId,
+    })
+        .sort({ [sortBy]: sortOrder === "asc" ? -1 : 1 })
+        .skip(skip)
+        .limit(limit);
+
+    return messages;
+};
+
+module.exports = { findChatsByUserId, getMessages };
