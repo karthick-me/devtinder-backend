@@ -1,5 +1,7 @@
 const validator = require("validator");
-const { ValidationError } = require("../../shared/errors");
+const { ValidationError, UserNotFoundError } = require("../../shared/errors");
+const mongoose = require("mongoose");
+const User = require("../models/user.model");
 
 const validGenders = new Set(["male", "female", "other"]);
 const ALLOWED_UPDATE_FIELDS = new Set([
@@ -162,7 +164,21 @@ function validateUpdateProfile(user) {
     }
 }
 
+function validateUserById(userId) {
+    if (!userId || !mongoose.isValidObjectId(userId)) {
+        throw new UserNotFoundError("Invalid user id");
+    }
+
+    const user = User.findById({ _id: userId });
+    if (!user) {
+        throw new UserNotFoundError("User does not exist");
+    }
+
+    return user;
+}
+
 module.exports = {
     validateRegisterUser,
     validateUpdateProfile,
+    validateUserById,
 };

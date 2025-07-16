@@ -22,6 +22,7 @@ const findChatByUserId = async function (
     { page = 1, limit = 10, sortBy = "createdAt", sortOrder = "asc" } = {}
 ) {
     const skip = (page - 1) * limit;
+
     const messages = await Message.find({
         $or: [{ sender: userId }, { receiver: userId }],
         chatId,
@@ -33,4 +34,4 @@ const findChatByUserId = async function (
     return messages;
 };
 
-module.exports = { findChatsByUserId, getMessages };
+module.exports = { findAllChatsByUserId, findChatByUserId };

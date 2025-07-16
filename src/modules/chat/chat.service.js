@@ -1,20 +1,16 @@
 const mongoose = require("mongoose");
-const { findChatsByUserId } = require("./chat.repository");
-const { UserNotFoundError } = require("../../shared/errors");
-const User = require("../../shared/models/user.model");
-const Message = require("../messages/message.model");
+const { findAllChatsByUserId, findChatByUserId } = require("./chat.repository");
+const { validateUserById } = require("../../shared/validators");
 
 async function getChatThreads(userId) {
-    if (!userId || !mongoose.isValidObjectId(userId)) {
-        throw new UserNotFoundError("Invalid user id");
-    }
-    const user = await User.findById(userId);
-
-    if (!user) {
-        throw new UserNotFoundError("User does not exist");
-    }
-
-    return await findChatsByUserId(userId);
+    validateUserById(userId);
+    return await findAllChatsByUserId(userId);
 }
 
-module.exports = { getChatThreads };
+async function getMessages(chatId, userId) {
+    validateUserById(userId);
+    console.log("hi");
+    return await findChatByUserId(chatId, userId);
+}
+
+module.exports = { getChatThreads, getMessages };
