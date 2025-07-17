@@ -47,9 +47,27 @@ const updateLastMessage = async function (chatId, messageId) {
     );
 };
 
+const resetUnread = async function (chatId, userId) {
+    return await Chat.findOneAndUpdate(
+        { chatId },
+        { $set: { [`unreadCount.${userId}`]: 0 } },
+        { new: true }
+    );
+};
+
+const incrementUnread = async function (chatId, userId) {
+    return await Chat.findOneAndUpdate(
+        { chatId },
+        { $inc: { [`unreadCount.${userId}`]: 1 } },
+        { new: true }
+    );
+};
+
 module.exports = {
     findAllChatsByUserId,
     findChatByUserId,
     saveMessage,
     updateLastMessage,
+    resetUnread,
+    incrementUnread,
 };

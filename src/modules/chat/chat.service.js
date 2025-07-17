@@ -3,8 +3,12 @@ const {
     findChatByUserId,
     saveMessage,
     updateLastMessage,
+    incrementUnread,
+    resetUnread,
 } = require("./chat.repository");
 const { validateUserById } = require("../../shared/validators");
+
+//TODO : Implement validate chat by id
 
 async function getChatThreads(userId) {
     validateUserById(userId);
@@ -29,8 +33,15 @@ async function sendMessage(senderId, receiverId, chatId, content) {
     const messageId = saveMessage._id;
 
     updateLastMessage(chatId, messageId);
+    incrementUnread(chatId, receiverId);
 
     return savedMessage;
 }
 
-module.exports = { getChatThreads, getMessages, sendMessage };
+async function markAsRead(chatId, userId) {
+    validateUserById(userId);
+
+    return await resetUnread(chatId, userId);
+}
+
+module.exports = { getChatThreads, getMessages, sendMessage, markAsRead };

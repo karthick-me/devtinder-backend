@@ -1,5 +1,10 @@
 const { formatSuccessResponse } = require("../../shared/utils");
-const { getChatThreads, getMessages, sendMessage } = require("./chat.service");
+const {
+    getChatThreads,
+    getMessages,
+    sendMessage,
+    markAsRead,
+} = require("./chat.service");
 const asyncHandler = require("../../shared/utils/asyncHandler");
 
 const getAllThreadController = asyncHandler(async function (request, response) {
@@ -53,8 +58,23 @@ const sendMessageController = asyncHandler(async function (request, response) {
     return successResponse.statusCode(201).json(successResponse);
 });
 
+const markAsReadController = asyncHandler(async function (request, response) {
+    const chatId = request.params.chatId;
+    const userId = request.userId;
+    const updatedChat = await markAsRead(chatId, userId);
+    const successResponse = formatSuccessResponse({
+        message: "Marked as read",
+        data: {
+            chat: updatedChat,
+        },
+        statusCode: 200,
+    });
+    return response.status(200).json(successResponse);
+});
+
 module.exports = {
     getAllThreadController,
     getMessagesController,
     sendMessageController,
+    markAsReadController,
 };
