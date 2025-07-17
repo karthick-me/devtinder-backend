@@ -1,5 +1,5 @@
 const { formatSuccessResponse } = require("../../shared/utils");
-const { getChatThreads, getMessages } = require("./chat.service");
+const { getChatThreads, getMessages, sendMessage } = require("./chat.service");
 const asyncHandler = require("../../shared/utils/asyncHandler");
 
 const getAllThreadController = asyncHandler(async function (request, response) {
@@ -32,4 +32,29 @@ const getMessagesController = asyncHandler(async function (request, response) {
     return response.status(200).json(successResponse);
 });
 
-module.exports = { getAllThreadController, getMessagesController };
+const sendMessageController = asyncHandler(async function (request, response) {
+    const chatId = request.params.chatId;
+    const senderId = request.userId;
+    const { receiverId, content } = request.body;
+
+    const savedMessage = await sendMessage(
+        senderId,
+        receiverId,
+        chatId,
+        content
+    );
+    const successResponse = formatSuccessResponse({
+        message: "Message sent and saved successfully",
+        data: {
+            message: savedMessage,
+        },
+        statusCode: 201,
+    });
+    return successResponse.statusCode(201).json(successResponse);
+});
+
+module.exports = {
+    getAllThreadController,
+    getMessagesController,
+    sendMessageController,
+};

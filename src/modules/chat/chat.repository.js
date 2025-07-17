@@ -34,4 +34,22 @@ const findChatByUserId = async function (
     return messages;
 };
 
-module.exports = { findAllChatsByUserId, findChatByUserId };
+const saveMessage = async function (message) {
+    const newMessage = new Message(message);
+    return await newMessage.save();
+};
+
+const updateLastMessage = async function (chatId, messageId) {
+    return await Chat.findOneAndUpdate(
+        { chatId },
+        { lastMessage: messageId },
+        { new: true }
+    );
+};
+
+module.exports = {
+    findAllChatsByUserId,
+    findChatByUserId,
+    saveMessage,
+    updateLastMessage,
+};
