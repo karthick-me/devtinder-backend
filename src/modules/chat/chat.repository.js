@@ -63,6 +63,20 @@ const incrementUnread = async function (chatId, userId) {
     );
 };
 
+const softDeleteMessageForUser = async function (messageId, chatId, userId) {
+    return await Message.findOneAndUpdate(
+        {
+            _id: messageId,
+            chatId,
+            $or: [{ sender: userId }, { receiver: userId }],
+        },
+        {
+            $addToSet: { deletedFor: userId },
+        },
+        { new: true }
+    );
+};
+
 module.exports = {
     findAllChatsByUserId,
     findChatByUserId,
@@ -70,4 +84,5 @@ module.exports = {
     updateLastMessage,
     resetUnread,
     incrementUnread,
+    softDeleteMessageForUser,
 };

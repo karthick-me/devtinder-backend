@@ -4,6 +4,7 @@ const {
     getMessages,
     sendMessage,
     markAsRead,
+    deleteMessageForUser,
 } = require("./chat.service");
 const asyncHandler = require("../../shared/utils/asyncHandler");
 
@@ -72,9 +73,31 @@ const markAsReadController = asyncHandler(async function (request, response) {
     return response.status(200).json(successResponse);
 });
 
+const deleteMessageForUserController = asyncHandler(async function (
+    request,
+    response
+) {
+    const { chatId, messageId } = request.params;
+    const userId = request.userId;
+    const deletedMessage = await deleteMessageForUser(
+        messageId,
+        chatId,
+        userId
+    );
+    const successResponse = formatSuccessResponse({
+        message: "Message deleted successfully",
+        data: {
+            deletedMessage,
+        },
+        statusCode: 200,
+    });
+    return response.status(200).json(successResponse);
+});
+
 module.exports = {
     getAllThreadController,
     getMessagesController,
     sendMessageController,
     markAsReadController,
+    deleteMessageForUserController,
 };
