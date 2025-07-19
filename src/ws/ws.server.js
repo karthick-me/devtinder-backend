@@ -6,6 +6,8 @@ const {
     getSocketByUserId,
     removeSocketByUserId,
 } = require("./ws.manager");
+const { parse } = require("path");
+const chatHandler = require("./chat.manager");
 
 function setupWebSocketServer(server) {
     const wss = new WebSocketServer({ noServer: true }, () => {
@@ -20,6 +22,8 @@ function setupWebSocketServer(server) {
         );
         const pathname = parsedUrl.pathname;
 
+        const receiverId = pathname.split("/")[2];
+
         const userId = authenticateUpgrade(request);
 
         if (!userId) {
@@ -30,8 +34,10 @@ function setupWebSocketServer(server) {
             socket.destroy();
             return;
         }
-        request.userId = userId;
+
         if (pathname.startsWith("/chat/")) {
+            request.userId = userId;
+            request.receiverId = receiverId;
             wss.handleUpgrade(request, socket, head, (ws) => {
                 wss.emit("connection", ws, request);
             });
@@ -45,10 +51,12 @@ function setupWebSocketServer(server) {
     wss.on("connection", (ws, request) => {
         const userId = request.userId;
         registerUserSocket(userId, ws);
-        console.log(request.userId);
 
         ws.on("message", (data) => {
             const { type } = JSON.parse(data);
+            if (type?.toLowerCase() === "chat".toLowerCase()) {
+                chatHandler(ws, request, data);
+            }
         });
 
         ws.on("close", () => {
