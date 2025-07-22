@@ -1,6 +1,7 @@
 const userSocketMap = new Map();
 
 function registerUserSocket(userId, ws) {
+    console.log("user registered : ", userId);
     userSocketMap.set(userId, ws);
 }
 

@@ -8,6 +8,21 @@ const chatSchema = new mongoose.Schema(
             unique: true,
             index: true,
         },
+        isGroup: {
+            type: Boolean,
+            default: false,
+        },
+
+        groupName: {
+            type: String,
+            default: null,
+        },
+        groupAdmins: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
         participants: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -15,6 +30,11 @@ const chatSchema = new mongoose.Schema(
                 required: true,
             },
         ],
+        createdBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
         lastMessage: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Message",

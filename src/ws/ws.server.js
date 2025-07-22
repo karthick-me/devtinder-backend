@@ -5,24 +5,21 @@ const {
     registerUserSocket,
     getSocketByUserId,
     removeSocketByUserId,
-} = require("./ws.manager");
-const { parse } = require("path");
-const chatHandler = require("./chat.manager");
+} = require("./socket.registry");
+const chatHandler = require("./chat.handler");
 
 function setupWebSocketServer(server) {
     const wss = new WebSocketServer({ noServer: true }, () => {
         console.log("Websocket server is created and verified user");
     });
 
-    //manually handling HTTP to WS for authenticating user ok
+    //manually handling upgrade from HTTP to WS for authenticating user
     server.on("upgrade", (request, socket, head) => {
         const parsedUrl = new URL(
             request.url,
             `http://${request.headers.host}`
         );
         const pathname = parsedUrl.pathname;
-
-        const receiverId = pathname.split("/")[2];
 
         const userId = authenticateUpgrade(request);
 
@@ -37,7 +34,6 @@ function setupWebSocketServer(server) {
 
         if (pathname.startsWith("/chat/")) {
             request.userId = userId;
-            request.receiverId = receiverId;
             wss.handleUpgrade(request, socket, head, (ws) => {
                 wss.emit("connection", ws, request);
             });
@@ -53,9 +49,34 @@ function setupWebSocketServer(server) {
         registerUserSocket(userId, ws);
 
         ws.on("message", (data) => {
-            const { type } = JSON.parse(data);
-            if (type?.toLowerCase() === "chat".toLowerCase()) {
-                chatHandler(ws, request, data);
+            try {
+                const parsed = JSON.parse(data);
+
+                const type = parsed?.type?.toLowerCase();
+
+                if (type === "chat") {
+                    chatHandler(ws, request, parsed);
+                } else if (type === "ack") {
+                    console.log("message sended");
+                } else {
+                    ws.send(
+                        JSON.stringify({
+                            type: "error",
+                            message: "Unsupported message type",
+                        })
+                    );
+                    ws.close();
+                }
+            } catch (error) {
+                console.error("WebSocket message error:", error);
+
+                ws.send(
+                    JSON.stringify({
+                        type: "error",
+                        message: "Invalid message format or internal error",
+                    })
+                );
+                ws.close();
             }
         });
 
